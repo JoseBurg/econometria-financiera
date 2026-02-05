@@ -1,0 +1,36 @@
+---
+title: "Econometría"
+subtitle: "Práctica 1: Estimaciones de modelos ARIMA"
+format: 
+  pdf:
+    message: false
+    warning: false
+    documentclass: scrartcl  # Clase KOMA-Script, más moderna que 'article'
+    number-sections: true    # Fundamental en economía
+    cite-method: biblatex    # Mejor manejo de bibliografía técnica
+    colorlinks: true         # Para que los links y citas sean clickeables
+    keep-tex: true
+---
+
+```{r}
+#| echo: false
+source("functions.R")
+source("ejercicios.R")
+```
+
+## Visualización de las Series 
+
+
+```{r}
+# plot_ejercicio1(
+#   var = "Log",
+#   sub_title = "Cifras en logaritmo"
+# )
+# 
+#plot_ejercicio1(
+#  var = "Dif1",
+#  sub_title = "Primera diferencia"
+#)
+#
+#plot_ejercicio1()
+```
