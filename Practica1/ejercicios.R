@@ -14,6 +14,7 @@ path_ipc <- file.path(
 ipc <- readxl::read_excel(path_ipc)
 
 
+
 # Programación eficiente --------------------------------------------------
 base_ipc <- ipc |> 
   mutate(
@@ -110,15 +111,6 @@ test_log <- purrr::map(log_ts, ~urca::ur.df(.x, type = "trend", lags = 4))
 
 test_summary <- purrr::map(test_log, summary)
 
-test_summary$ipc@teststat[1,2]
-test_summary$ipc@cval[1,2]
-
-
-log_diff <- purrr::map(log_ts, diff)     # Primera diferencia de los logaritmos
-test_log <- purrr::map(log_ts, ~urca::ur.df(.x, type = "trend", lags = 4))
-
-test_summary <- purrr::map(test_log, summary)
-
 
 estacionariedad(
   test_summary$ipc@teststat[1,1] > test_summary$ipc@cval[1,2]
@@ -158,7 +150,8 @@ ipc_longer <- ipc_ts |>
     cols = -fecha, 
     names_to = "ipc",
     values_to = "valor"
-  ) |> 
+  ) |>
+  drop_na() |> 
   mutate(ipc = stringr::str_remove(ipc, "_log"))
 
 # Prestar atención al ipc subyacente, tienen saltos en diferentes periodos 
@@ -174,15 +167,23 @@ ipc_longer |>                                                               #ACF
 # ACF parcial
 ipc_longer |> 
   group_by(ipc) |> 
-  ACF(valor, lag_max = 12, type = "partial") |> 
+  PACF(valor, lag_max = 12, type = "partial") |> 
   autoplot() +
   theme_classic() + 
   labs(title = "Primera diferencia de logaritmo de los IPCs",
        subtitle = "PACF: Autocorrelación parcial") +
   theme_conf()
 
-# Se sugiere un modelo ARIMA con un orden de 1, ARIMA(1,1,1)
+# Se sugiere un modelo ARMA con un orden de 1, ARMA(1,1)
+ipc_fit <- ipc_longer |> 
+  dplyr::filter(ipc == "ipc") |> 
+  dplyr::select(-ipc)
 
+mod_ar1 <- tseries::arma(
+  ts(ipc_fit[2], 
+     start = c(2007, 2),
+     frequency = 12), 
+  order = c(1,1)
+)
 
-
-
+summary(mod_ar1)
