@@ -3,12 +3,12 @@ theme_conf <- function(){
     theme(
       legend.position = "none",
       panel.grid = ggplot2::element_blank(),
-      plot.title = ggplot2::element_text(face = "bold", family = 'Gotham Book', size = 16),
+      plot.title = ggplot2::element_text(face = "bold", family = 'Georgia', size = 16),
       axis.title = ggplot2::element_text(size = 11, face = "bold"),
       axis.text = ggplot2::element_text(size = 11),
       strip.text = ggplot2::element_text(face = "bold", size = 10),
       legend.text = ggplot2::element_text(size = 11),
-      text = ggplot2::element_text(family = 'Gotham Book')
+      text = ggplot2::element_text(family = 'Georgia')
     )
 }
 

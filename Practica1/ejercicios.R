@@ -4,12 +4,13 @@ library(tseries)
 library(urca)
 library(fpp3)
 
-#path_general <- "./1. Materias/econometria-financiera"
+path_general <- "./Practica1"
 
 path_ipc <- file.path(
- # path_general, 
+ path_general, 
   "ipc.xlsx")
 
+source("./Practica1/functions.R")
 
 ipc <- readxl::read_excel(path_ipc)
 
