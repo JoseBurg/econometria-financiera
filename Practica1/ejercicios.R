@@ -115,4 +115,74 @@ test_summary$ipc@cval[1,2]
 
 
 log_diff <- purrr::map(log_ts, diff)     # Primera diferencia de los logaritmos
+test_log <- purrr::map(log_ts, ~urca::ur.df(.x, type = "trend", lags = 4))
+
+test_summary <- purrr::map(test_log, summary)
+
+
+estacionariedad(
+  test_summary$ipc@teststat[1,1] > test_summary$ipc@cval[1,2]
+)
+
+# Transformación para corregir la no estacionariedad ----------------------
+# Se dice que una serie es integrada de ”orden” uno cuando al
+# diferenciar la serie no estacionaria una vez, esta se vuelve
+# estacionaria
+log_diff <- purrr::map(log_ts, diff)     # Primera diferencia de los logaritmos
+
+test_diff <- purrr::map(log_diff, ~urca::ur.df(.x, type = "trend", lags = 4))
+
+test_summary_diff <- purrr::map(test_diff, summary)
+
+estacionariedad(test_summary_diff$ipc@teststat[1,1] > test_summary_diff$ipc@cval[1,2]) 
+estacionariedad(test_summary_diff$ipc_subyacente@teststat[1,1] > test_summary_diff$ipc_subyacente@cval[1,2]) 
+
+
+
+# Estadísticos de la serie estacionaria -----------------------------------
+
+purrr::map(log_diff, summary)
+
+
+
+# Identificación del Modelo ARIMA -----------------------------------------
+ipc_longer <- ipc_ts |> 
+  select(fecha, contains("log")) |> 
+  mutate(
+    across(
+      -fecha, 
+      difference
+    )
+  ) |>  
+  pivot_longer(
+    cols = -fecha, 
+    names_to = "ipc",
+    values_to = "valor"
+  ) |> 
+  mutate(ipc = stringr::str_remove(ipc, "_log"))
+
+# Prestar atención al ipc subyacente, tienen saltos en diferentes periodos 
+ipc_longer |>                                                               #ACF
+  group_by(ipc) |> 
+  ACF(valor, lag_max = 12) |> 
+  autoplot() +
+  theme_classic() + 
+  labs(title = "Primera diferencia de logaritmo de los IPCs",
+    subtitle = "ACF: Autocorrelación simple") +
+  theme_conf()
+
+# ACF parcial
+ipc_longer |> 
+  group_by(ipc) |> 
+  ACF(valor, lag_max = 12, type = "partial") |> 
+  autoplot() +
+  theme_classic() + 
+  labs(title = "Primera diferencia de logaritmo de los IPCs",
+       subtitle = "PACF: Autocorrelación parcial") +
+  theme_conf()
+
+# Se sugiere un modelo ARIMA con un orden de 1, ARIMA(1,1,1)
+
+
+
 
