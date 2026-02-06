@@ -42,3 +42,15 @@ plot_ejercicio1 <- function(
     ggplot2::facet_wrap(~variables) +
     theme_conf()
 }
+
+
+estacionariedad <- function(test){
+  ifelse(
+    test,
+    "H0: Serie no estacionaria", 
+    "H1: Serie estacionaria"
+  )
+}
+
+
+
