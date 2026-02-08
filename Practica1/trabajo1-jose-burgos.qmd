@@ -1,15 +1,20 @@
 ---
-title: "Econometría"
+title: "Econometría Financiera"
 subtitle: "Práctica 1: Estimaciones de modelos ARIMA"
+author: José Antonio Burgos Francisco
 format: 
-  docx:
+  pdf:
     message: false
     warning: false
-    documentclass: scrartcl  # Clase KOMA-Script, más moderna que 'article'
-    number-sections: true    # Fundamental en economía
-    cite-method: biblatex    # Mejor manejo de bibliografía técnica
-    colorlinks: true         # Para que los links y citas sean clickeables
-    keep-tex: true
+    echo: false
+    fig-height: 5
+    fig-width: 7
+    table-of-contents: true
+    # documentclass: scrartcl
+    # number-sections: true
+    # cite-method: biblatex
+    # colorlinks: true
+    # keep-tex: true
 ---
 
 ```{r}
@@ -18,9 +23,93 @@ source("functions.R")
 source("scripts_reports.R")
 ```
 
-## Visualización de las Series 
+\newpage
+
+# Visualización de las Series
+
+## Series en logaritmos
+
+```{r plot_ipc_log}
+base_ipc_longer |>
+    plot_ejercicio1(
+      var = "log",
+      sub_title = "Series en Logaritmos"
+    ) 
+```
+
+## Series en primeras diferencias
+
+```{r plot_ipc_diff1}
+base_ipc_longer |>
+    plot_ejercicio1(
+      var = "dif1",
+      sub_title = "Series en primeras diferencias"
+    )
+```
+
+## Series en VI
+
+```{r plot_ipc_vi}
+base_ipc_longer |>
+    plot_ejercicio1(
+      var = "VI",
+      sub_title = "Variación porcentual interanual"
+    ) 
+```
+
+\newpage
+
+# Análisis de Raíz Unitaria
+
+## Prueba Dickey-Fuller Aumentada (ADF).
+
+**Tabla 1**\
+*Resultados del test de Dickey-Fuller aumentado (ADF) con tendencia*
+
+| Serie          | Estadístico ADF ($\tau_3$) | Valor crítico 5 % | Nivel de significancia | Conclusión      |
+|---------------|--------------:|--------------:|--------------:|---------------|
+| IPC            |                       -2.013 |             -3.43 |                    5 % | No estacionaria |
+| IPC subyacente |                       -1.813 |             -3.43 |                    5 % | No estacionaria |
+| IPC A&B        |                       -2.088 |             -3.43 |                    5 % | No estacionaria |
+| IPC transporte |                       -2.624 |             -3.43 |                    5 % | No estacionaria |
+
+
+
+Los resultados del test de Dickey-Fuller aumentado (ADF) con término constante y tendencia determinística indican que ninguna de las series en niveles rechaza la hipótesis nula de presencia de raíz unitaria al 5 % de significancia, [Apéndice A](#apendice-a). En consecuencia, se concluye que las series no son estacionarias en niveles. Dado que la no estacionariedad puede generar regresiones espurias y sesgar la inferencia estadística, se procede a transformar las series mediante diferenciación de primer orden, con el objetivo de inducir estacionariedad y garantizar la validez de los resultados econométricos posteriores.
+
+
 
 ```{r}
-base_ipc_longer |>
-    plot_ejercicio1() 
+#| fig-height: 8
+
+ipc_ts |> 
+  pivot_longer(
+    cols = -fecha, 
+    names_to = "ipc",
+    values_to = "valor"
+  ) |> 
+  mutate(
+    ipc = stringr::str_remove(ipc, "_log"),
+    ipc = stringr::str_to_upper(ipc),
+    ipc = stringr::str_replace(ipc, "_", " ")
+  ) |> 
+  group_by(ipc) |> 
+  ACF(valor, lag_max = 12) |> 
+  autoplot() +
+  theme_classic() + 
+  labs(title = "Logaritmos de IPC") +
+  theme_conf()
+```
+
+\newpage
+
+# Apéndices
+
+
+## Apéndice A {#apendice-a} : Dickey-Fuller Aumentada - series logaritmos
+
+```{r}
+#| echo: true
+#| fig-align: center
+purrr::map(test_log, summary)
 ```

@@ -73,7 +73,7 @@ ipc_ts |>
   ) |> 
   mutate(ipc = stringr::str_remove(ipc, "_log")) |> 
   group_by(ipc) |> 
-  ACF(valor, lag_max = 24, type = "partial") |> 
+  PACF(valor, lag_max = 24) |> 
   autoplot() +
   theme_classic() + 
   labs(title = "Logaritmos de IPC") +
